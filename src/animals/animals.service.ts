@@ -56,4 +56,10 @@ export class AnimalsService {
       message: 'Animal eliminado con éxito',
     };
   }
+
+  findByRaza(raza: string) {
+    return this.animals.filter(
+      (a) => a.raza.toLowerCase() === raza.toLowerCase(),
+    );
+  }
 }

@@ -1,4 +1,13 @@
-import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+  Query,
+} from '@nestjs/common';
 import { AnimalsService } from './animals.service';
 import { CreateAnimalDto, UpdateAnimalDto } from './animal.dto';
 
@@ -17,17 +26,30 @@ export class AnimalsController {
   }
 
   @Post()
-  createAnimal(@Body() animalPayload: CreateAnimalDto) { // <-- Aquí usa el DTO de creación
+  createAnimal(@Body() animalPayload: CreateAnimalDto) {
+    // <-- Aquí usa el DTO de creación
     return this.animalsService.create(animalPayload);
   }
 
   @Put(':id')
-  updateAnimal(@Param('id') id: string, @Body() animalChanges: UpdateAnimalDto) { // <-- Aquí usa el DTO de actualización
+  updateAnimal(
+    @Param('id') id: string,
+    @Body() animalChanges: UpdateAnimalDto,
+  ) {
+    // <-- Aquí usa el DTO de actualización
     return this.animalsService.update(id, animalChanges);
   }
 
   @Delete(':id')
   deleteAnimal(@Param('id') id: string) {
     return this.animalsService.delete(id);
+  }
+
+  @Get()
+  findAll(@Query('raza') raza?: string) {
+    if (raza) {
+      return this.animalsService.findByRaza(raza);
+    }
+    return this.animalsService.findAll();
   }
 }
