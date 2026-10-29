@@ -4,6 +4,6 @@ import { FeedingService } from './feeding.service';
 
 @Module({
   controllers: [FeedingController],
-  providers: [FeedingService]
+  providers: [FeedingService],
 })
 export class FeedingModule {}
