@@ -16,7 +16,10 @@ export class AnimalsController {
   constructor(private readonly animalsService: AnimalsService) {}
 
   @Get()
-  getAllAnimals() {
+  getAllAnimals(@Query('raza') raza?: string) {
+    if (raza) {
+      return this.animalsService.findByRaza(raza);
+    }
     return this.animalsService.findAll();
   }
 
@@ -43,13 +46,5 @@ export class AnimalsController {
   @Delete(':id')
   deleteAnimal(@Param('id') id: string) {
     return this.animalsService.delete(id);
-  }
-
-  @Get()
-  findAll(@Query('raza') raza?: string) {
-    if (raza) {
-      return this.animalsService.findByRaza(raza);
-    }
-    return this.animalsService.findAll();
   }
 }
