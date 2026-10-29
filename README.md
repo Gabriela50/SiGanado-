@@ -1,3 +1,28 @@
+# SiGanado — Gestión de ganado bovino
+
+Proyecto académico de la Universidad Cooperativa de Colombia para desarrollar
+una API de gestión ganadera con NestJS y TypeScript.
+
+## Estado actual
+
+- Registro, consulta, actualización y eliminación de animales.
+- Estructura de módulos para alimentación, salud, vacunación y movimientos.
+- Los animales se almacenan en memoria; se pierden al reiniciar el servidor.
+
+## Ejecutar el proyecto
+
+Requisito: Node.js y npm instalados.
+
+```powershell
+npm install
+npm run start:dev
+```
+
+La API se inicia en `http://localhost:3000`. El inventario se consulta en
+`GET /animals`.
+
+---
+
 <p align="center">
   <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
 </p>
