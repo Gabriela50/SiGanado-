@@ -1,65 +1,54 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Animal } from './animal.model';
-import { CreateAnimalDto, UpdateAnimalDto } from './animal.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { AnimalEntity } from './entities/animal.entity';
 
 @Injectable()
 export class AnimalsService {
-  private animals: Animal[] = [];
+  constructor(
+    @InjectRepository(AnimalEntity)
+    private readonly animalRepository: Repository<AnimalEntity>,
+  ) {}
 
-  findAll() {
-    return this.animals;
+  async create(createAnimalDto: any): Promise<AnimalEntity> {
+    return this.animalRepository.save(createAnimalDto);
   }
 
-  findById(id: string) {
-    const animal = this.animals.find((a) => a.id === id);
+  async findAll(): Promise<AnimalEntity[]>{
+    return this.animalRepository.find();
+  }
+
+  async findOne(id: string): Promise<AnimalEntity> {
+    const animal = await this.animalRepository.findOne({ where: { id } });
     if (!animal) {
       throw new NotFoundException(`Animal con ID ${id} no encontrado`);
     }
-    return {
-      message: 'Animal encontrado',
-      data: animal,
-    };
+    return animal;
   }
 
-  create(animalPayload: CreateAnimalDto) {
-    const newAnimal: Animal = {
-      ...animalPayload,
-      id: `${new Date().getTime()}`,
-    };
-    this.animals.push(newAnimal);
-    return {
-      message: 'Animal registrado con éxito',
-      data: newAnimal,
-    };
+  // Alias para que coincida con el controlador si usa findById
+  async findById(id: string): Promise<AnimalEntity> {
+    return this.findOne(id);
   }
 
-  update(id: string, animalChanges: UpdateAnimalDto) {
-    const index = this.animals.findIndex((a) => a.id === id);
-    if (index === -1) {
-      throw new NotFoundException(`Animal con ID ${id} no encontrado`);
-    }
-    const updatedAnimal = { ...this.animals[index], ...animalChanges };
-    this.animals[index] = updatedAnimal;
-    return {
-      message: 'Animal actualizado con éxito',
-      data: updatedAnimal,
-    };
+  // Método para buscar por raza que exige tu controlador
+  async findByRaza(raza: string): Promise<AnimalEntity[]> {
+    return this.animalRepository.find({ where: { raza } });
   }
 
-  delete(id: string) {
-    const index = this.animals.findIndex((a) => a.id === id);
-    if (index === -1) {
-      throw new NotFoundException(`Animal con ID ${id} no encontrado`);
-    }
-    this.animals.splice(index, 1);
-    return {
-      message: 'Animal eliminado con éxito',
-    };
+  async update(id: string, updateAnimalDto: any): Promise<AnimalEntity> {
+    const animal = await this.findOne(id);
+    this.animalRepository.merge(animal, updateAnimalDto);
+    return this.animalRepository.save(animal);
   }
 
-  findByRaza(raza: string) {
-    return this.animals.filter(
-      (a) => a.raza.toLowerCase() === raza.toLowerCase(),
-    );
+  async remove(id: string): Promise<void> {
+    const animal = await this.findOne(id);
+    await this.animalRepository.remove(animal);
+  }
+
+  // Alias para que coincida con el controlador si usa delete
+  async delete(id: string): Promise<void> {
+    return this.remove(id);
   }
 }
