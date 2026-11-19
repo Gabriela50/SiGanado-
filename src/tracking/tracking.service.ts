@@ -1,59 +1,50 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { TrackingRecord } from './tracking.model';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { TrackingEntity } from './entities/tracking.entity';
 import { CreateTrackingDto, UpdateTrackingDto } from './tracking.dto';
 
 @Injectable()
 export class TrackingService {
-  private trackingRecords: TrackingRecord[] = [
-    {
-      id: '1',
-      animalId: 'anim-001',
-      loteUbicacion: 'Potrero El Alto (Lote 3)',
-      coordenadasGPS: '1.2136° N, 77.2811° W',
-      fechaMovimiento: '2026-10-28',
-      responsable: 'Carlos Pérez',
-      observaciones: 'Traslado por rotación de pastoreo',
-    },
-  ];
+  constructor(
+    @InjectRepository(TrackingEntity)
+    private readonly trackingRepository: Repository<TrackingEntity>,
+  ) {}
 
-  findAll() {
-    return this.trackingRecords;
+  async findAll() {
+    // Devuelve todos los registros de ubicación y movimiento
+    return this.trackingRepository.find();
   }
 
-  findOne(id: string) {
-    const record = this.trackingRecords.find((item) => item.id === id);
+  async findOne(id: string) {
+    const record = await this.trackingRepository.findOne({ where: { id } });
     if (!record) {
-      throw new NotFoundException(`Registro de seguimiento con ID ${id} no encontrado`);
+      throw new NotFoundException(
+        `Registro de seguimiento con ID ${id} no encontrado`,
+      );
     }
     return record;
   }
 
-  create(payload: CreateTrackingDto) {
-    const newRecord = {
-      id: (this.trackingRecords.length + 1).toString(),
-      ...payload,
-    };
-    this.trackingRecords.push(newRecord);
-    return newRecord;
+  async create(payload: CreateTrackingDto) {
+    const newRecord = this.trackingRepository.create(payload);
+    return this.trackingRepository.save(newRecord);
   }
 
-  update(id: string, payload: UpdateTrackingDto) {
-    const record = this.findOne(id);
-    const index = this.trackingRecords.findIndex((item) => item.id === id);
-
-    this.trackingRecords[index] = {
-      ...record,
-      ...payload,
-    };
-    return this.trackingRecords[index];
+  async update(id: string, payload: UpdateTrackingDto) {
+    const existingRecord = await this.findOne(id);
+    const mergedRecord = this.trackingRepository.merge(
+      existingRecord,
+      payload,
+    );
+    return this.trackingRepository.save(mergedRecord);
   }
 
-  remove(id: string) {
-    const index = this.trackingRecords.findIndex((item) => item.id === id);
-    if (index === -1) {
-      throw new NotFoundException(`Registro de seguimiento con ID ${id} no encontrado`);
-    }
-    this.trackingRecords.splice(index, 1);
-    return { message: `Registro de seguimiento con ID ${id} eliminado exitosamente` };
+  async remove(id: string) {
+    const existingRecord = await this.findOne(id);
+    await this.trackingRepository.remove(existingRecord);
+    return {
+      message: `Registro de seguimiento con ID ${id} eliminado exitosamente`,
+    };
   }
 }
