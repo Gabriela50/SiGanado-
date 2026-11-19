@@ -1,58 +1,48 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Feeding } from './feeding.model';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { FeedingEntity } from './entities/feeding.entity';
 import { CreateFeedingDto, UpdateFeedingDto } from './feeding.dto';
 
 @Injectable()
 export class FeedingService {
-  private feedings: Feeding[] = [
-    {
-      id: '1',
-      animalId: 'anim-001',
-      tipoAlimento: 'Pasto de corte (King Grass)',
-      cantidadKg: 15.5,
-      fechaRegistro: '2026-10-28',
-      observaciones: 'Se suministró en la mañana',
-    },
-  ];
+  constructor(
+    @InjectRepository(FeedingEntity)
+    private readonly feedingRepository: Repository<FeedingEntity>,
+  ) {}
 
-  findAll() {
-    return this.feedings;
+  async findAll() {
+    // Retorna todos los registros de alimentación almacenados en PostgreSQL
+    return this.feedingRepository.find();
   }
 
-  findOne(id: string) {
-    const feeding = this.feedings.find((item) => item.id === id);
+  async findOne(id: string) {
+    const feeding = await this.feedingRepository.findOne({ where: { id } });
     if (!feeding) {
-      throw new NotFoundException(`Registro de alimentación con ID ${id} no encontrado`);
+      throw new NotFoundException(
+        `Registro de alimentación con ID ${id} no encontrado`,
+      );
     }
     return feeding;
   }
 
-  create(payload: CreateFeedingDto) {
-    const newFeeding = {
-      id: (this.feedings.length + 1).toString(),
-      ...payload,
-    };
-    this.feedings.push(newFeeding);
-    return newFeeding;
+  async create(payload: CreateFeedingDto) {
+    const newFeeding = this.feedingRepository.create(payload);
+    return this.feedingRepository.save(newFeeding);
   }
 
-  update(id: string, payload: UpdateFeedingDto) {
-    const feeding = this.findOne(id);
-    const index = this.feedings.findIndex((item) => item.id === id);
-    
-    this.feedings[index] = {
-      ...feeding,
-      ...payload,
-    };
-    return this.feedings[index];
+  async update(id: string, payload: UpdateFeedingDto) {
+    const existingFeeding = await this.findOne(id);
+    const mergedFeeding = this.feedingRepository.merge(
+      existingFeeding,
+      payload,
+    );
+    return this.feedingRepository.save(mergedFeeding);
   }
 
-  remove(id: string) {
-    const index = this.feedings.findIndex((item) => item.id === id);
-    if (index === -1) {
-      throw new NotFoundException(`Registro de alimentación con ID ${id} no encontrado`);
-    }
-    this.feedings.splice(index, 1);
+  async remove(id: string) {
+    const existingFeeding = await this.findOne(id);
+    await this.feedingRepository.remove(existingFeeding);
     return { message: `Registro con ID ${id} eliminado exitosamente` };
   }
 }
