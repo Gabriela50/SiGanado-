@@ -1,4 +1,11 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+import { AnimalEntity } from '../../animals/entities/animal.entity';
 
 @Entity('health_records')
 export class HealthEntity {
@@ -6,8 +13,16 @@ export class HealthEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: 'varchar' })
+  // Llave foránea hacia animals.id
+  @Column({ type: 'uuid' })
   animalId: string;
+
+  // Muchos registros médicos pertenecen a un animal
+  @ManyToOne(() => AnimalEntity, (animal) => animal.registrosSalud, {
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'animalId' })
+  animal: AnimalEntity;
 
   @Column({ type: 'varchar' })
   diagnostico: string;

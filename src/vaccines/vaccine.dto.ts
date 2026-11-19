@@ -1,4 +1,5 @@
 import {
+  IsUUID,
   IsDateString,
   IsInt,
   IsNotEmpty,
@@ -8,7 +9,7 @@ import {
 } from 'class-validator';
 
 export class CreateVaccineDto {
-  @IsString()
+  @IsUUID()
   @IsNotEmpty()
   animalId: string;
 
@@ -41,7 +42,7 @@ export class CreateVaccineDto {
 }
 
 export class UpdateVaccineDto {
-  @IsString()
+  @IsUUID()
   @IsOptional()
   animalId?: string;
 

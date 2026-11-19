@@ -1,4 +1,11 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+import { AnimalEntity } from '../../animals/entities/animal.entity';
 
 @Entity('feedings')
 export class FeedingEntity {
@@ -6,8 +13,16 @@ export class FeedingEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: 'varchar' })
+  // Llave foránea hacia animals.id
+  @Column({ type: 'uuid' })
   animalId: string;
+
+  // Muchos registros de alimentación pertenecen a un animal
+  @ManyToOne(() => AnimalEntity, (animal) => animal.alimentaciones, {
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'animalId' })
+  animal: AnimalEntity;
 
   @Column({ type: 'varchar' })
   tipoAlimento: string;

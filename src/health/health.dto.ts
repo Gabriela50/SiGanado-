@@ -1,7 +1,7 @@
-import { IsString, IsNotEmpty, IsOptional } from 'class-validator';
+import { IsUUID, IsString, IsNotEmpty, IsOptional } from 'class-validator';
 
 export class CreateHealthDto {
-  @IsString()
+  @IsUUID()
   @IsNotEmpty()
   animalId: string;
 
@@ -27,7 +27,7 @@ export class CreateHealthDto {
 }
 
 export class UpdateHealthDto {
-  @IsString()
+  @IsUUID()
   @IsOptional()
   animalId?: string;
 

@@ -1,4 +1,11 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+import { AnimalEntity } from '../../animals/entities/animal.entity';
 
 @Entity('tracking_records')
 export class TrackingEntity {
@@ -6,8 +13,16 @@ export class TrackingEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: 'varchar' })
+  // Llave foránea hacia animals.id
+  @Column({ type: 'uuid' })
   animalId: string;
+
+  // Muchos registros de seguimiento pertenecen a un animal
+  @ManyToOne(() => AnimalEntity, (animal) => animal.seguimientos, {
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'animalId' })
+  animal: AnimalEntity;
 
   @Column({ type: 'varchar' })
   loteUbicacion: string;

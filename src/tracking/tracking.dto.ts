@@ -1,7 +1,7 @@
-import { IsString, IsNotEmpty, IsOptional } from 'class-validator';
+import { IsUUID, IsString, IsNotEmpty, IsOptional } from 'class-validator';
 
 export class CreateTrackingDto {
-  @IsString()
+  @IsUUID()
   @IsNotEmpty()
   animalId: string;
 
@@ -27,7 +27,7 @@ export class CreateTrackingDto {
 }
 
 export class UpdateTrackingDto {
-  @IsString()
+  @IsUUID()
   @IsOptional()
   animalId?: string;
 
