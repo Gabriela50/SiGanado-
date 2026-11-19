@@ -1,4 +1,5 @@
 import {
+  IsUUID,
   IsString,
   IsNumber,
   IsOptional,
@@ -7,7 +8,7 @@ import {
 } from 'class-validator';
 
 export class CreateFeedingDto {
-  @IsString()
+  @IsUUID()
   @IsNotEmpty()
   animalId: string;
 
@@ -29,7 +30,7 @@ export class CreateFeedingDto {
 }
 
 export class UpdateFeedingDto {
-  @IsString()
+  @IsUUID()
   @IsOptional()
   animalId?: string;
 
